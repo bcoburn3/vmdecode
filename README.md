@@ -7,12 +7,21 @@ To use:
   3. $GOPATH/bin/vmdecode /path/to/level1.txt
 
 You should see output something like this:
+
 ENT 00000000
+
 IMM 0000008d
+
 PUSHARG
+
 INT 00000002
+
 ADJ 00000001
+
 IMM 00000000
+
 RET
+
 RET
+
 LIT 
