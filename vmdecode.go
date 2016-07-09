@@ -93,11 +93,12 @@ func getHexString(path string) string {
 	scanner := bufio.NewScanner(file)
 	tempSlice := []string{}
 	for scanner.Scan() {
-		tempSlice = append(tempSlice, scanner.Text()[5:53])
+		line := scanner.Text()
+		line = strings.Replace(line, " ", "", -1)
+		line = strings.Replace(line, "\t", "", -1)
+		tempSlice = append(tempSlice, line[4:36])
 	}
 	res := strings.Join(tempSlice, "")
-	res = strings.Replace(res, " ", "", -1)
-	res = strings.Replace(res, "\t", "", -1)
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
