@@ -9,8 +9,10 @@ import (
 )
 
 var noArgOps = "01,03,04,0c,0d,0e,0f,10,11,12,13,14,15,16,17,18,19,1a,1b,1c,1d,1e,1f,20,21,34,38"
+var noArgOpLength = 1
 
 var oneArgOps = "00,02,05,06,07,08,09,0a,0b,22,37"
+var oneArgOpLength = 5
 
 var codeNameMap = map[string]string{
 	"00": "LIT",
@@ -73,12 +75,14 @@ func main() {
 		fmt.Println("missing argument to function entrypoint bytecode, did you copy the whole thing?")
 		panic("no vm arg")
 	}
-	fmt.Println("ENT " + string(argBytes))
+	fmt.Println("0000 ENT " + string(argBytes))
 	
-	line, _ := readAssemOp(hsReader)
+	offset, line, _ := readAssemOp(hsReader)
+	length := oneArgOpLength
 	for line != "" {
-		fmt.Println(line)
-		line, _ = readAssemOp(hsReader)
+		fmt.Printf("%04x %s\n", offset, line)
+		offset += length //sum length of previous instruction
+		length, line, _ = readAssemOp(hsReader)
 	}
 	fmt.Println(line)
 }
@@ -106,21 +110,21 @@ func getHexString(path string) string {
 	return res
 }
 
-func readAssemOp(hsReader *strings.Reader) (string, error) {
+func readAssemOp(hsReader *strings.Reader) (int, string, error) {
 	tempBytes := make([]byte, 2)
 	n, err := hsReader.Read(tempBytes)
 	if n == 0 {
-		return "", err
+		return 0, "", err
 	}
 	opcode := string(tempBytes)
 	if strings.Contains(noArgOps, opcode) {
-		return codeNameMap[opcode], err
+		return noArgOpLength, codeNameMap[opcode], err
 	} else if strings.Contains(oneArgOps, opcode) {
 		argBytes := make([]byte, 8)
 		_, err := hsReader.Read(argBytes)
-		return codeNameMap[opcode] + " " + string(argBytes), err
+		return oneArgOpLength, codeNameMap[opcode] + " " + string(argBytes), err
 	} else {
-		return "UNDEF", err
+		return noArgOpLength, "UNDEF", err
 	}
 }
 	
